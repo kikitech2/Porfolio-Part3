@@ -1,1 +1,89 @@
-*to be filled*
+// Part 1 & 2 login process.
+import javax.swing.JOptionPane;
+
+public class Login {
+
+    private static String registeredUsername;
+    private static String registeredPassword;
+    private static boolean userRegistered = false;
+
+    public static void registerUser() {
+        String firstName;
+        String lastName;
+        String username;
+        String password;
+        String cellNumber;
+
+        firstName = JOptionPane.showInputDialog("Enter your First name:");
+        lastName = JOptionPane.showInputDialog("Enter your Last name:");
+
+        boolean isValidUserName;
+        do {
+            username = JOptionPane.showInputDialog("Enter your Username (It must contain an underscore and be exactly 5 characters long):");
+            isValidUserName = AccountCreation.checkUsername(username);
+        } while (!isValidUserName);
+        JOptionPane.showMessageDialog(null, "Username successfully captured.");
+        registeredUsername = username; // Store the valid username
+        boolean isPasswordValid;
+        do {
+            password = JOptionPane.showInputDialog("Enter your Password (It must contain 8 characters, an uppercase letter, a number, and a special character):");
+            isPasswordValid = AccountCreation.checkPasswordComplexity(password);
+        } while (!isPasswordValid);
+        JOptionPane.showMessageDialog(null, "Password successfully captured.");
+        registeredPassword = password; // Store the valid password
+
+        boolean isCellValid;
+        do {
+            cellNumber = JOptionPane.showInputDialog("Enter your South African cell number (It must start with +27 and be followed by 9 digits):");
+            isCellValid = AccountCreation.checkCellPhoneNumber(cellNumber);
+        }while (!isCellValid);
+        JOptionPane.showMessageDialog(null, "Cellphone number successfully captured.");
+
+        JOptionPane.showMessageDialog(null, "Registration successful! Welcome, " + firstName + " " + lastName + "!");
+        userRegistered = true; // Mark that a user has been registered
+    }
+    public static boolean loginUser(String username, String password) {
+        // Only allow login if a user has been registered.
+        if (!userRegistered) {
+            JOptionPane.showMessageDialog(null, "No user registered. Please register first.");
+            return false;
+        }
+        return username != null && password != null &&
+                username.equals(registeredUsername) && password.equals(registeredPassword);
+    }
+    public static String getRegisteredUsername() {
+        return registeredUsername;
+    }
+
+
+    public static class AccountCreation {
+
+        public static boolean checkUsername(String username) {
+            if (username != null && username.contains("_") && username.length() == 5) {
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Invalid username. Please ensure your Username contains an underscore and is exactly 5 characters long.");
+                return false;
+            }
+        }
+        public static boolean checkPasswordComplexity(String password) {
+            // Regex enforces at least 8 chars, one uppercase, one digit, one special char (not whitespace or colon)
+            if (password != null && password.matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d\\s:]).{8,}$")) {
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Invalid password. Please ensure your Password contains at least 8 characters, a capital letter, a number, and a special character (excluding colon).");
+                return false;
+            }
+        }
+
+        public static boolean checkCellPhoneNumber(String cellNumber) {
+            if (cellNumber != null && cellNumber.matches("^\\+27\\d{9}$")) {
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Invalid number. Please ensure your number starts with +27 and is followed by 9 digits.");
+                return false;
+            }
+        }
+    }
+}
+
