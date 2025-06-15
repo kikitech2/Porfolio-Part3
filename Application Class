@@ -1,1 +1,151 @@
-* to be filled*
+import javax.swing.JOptionPane;
+
+//This method allows a user to register on QuickChat.
+public class Application {
+
+    private static boolean isLoggedIn = false;
+    public static void main(String[] args) {
+
+        //This method allows a user to login in successfully.
+        String loginUsername = JOptionPane.showInputDialog("Enter your username to login:");
+        String loginPassword = JOptionPane.showInputDialog("Enter your password to login:");
+
+        if (Login.loginUser(loginUsername, loginPassword)) {
+            JOptionPane.showMessageDialog(null, "Login successful. Welcome to QuickChat.");
+            isLoggedIn = true;
+            showMenu();
+        } else {
+            JOptionPane.showMessageDialog(null, "Login failed. Application will exit. Please try again.");
+        }
+    }
+    //This method allows a user to explore the features of QuickChat once they have logged in successfully.
+    public static void showMenu() {
+        if (!isLoggedIn) {
+            JOptionPane.showMessageDialog(null, "You must log in to use the features of QuickChat.");
+            return;
+        }
+        // This method will pass the registered username to the MessageManager (class) as an identification of the current sender in QuickChat.
+        String currentSender = Login.getRegisteredUsername();
+        if (currentSender == null) {
+            JOptionPane.showMessageDialog(null, "Error: Sender username not found. Exiting application.");
+            return;
+        }
+
+        MessageManager messageManager = new MessageManager(currentSender);
+        // This method will prompt the user to enter an option of how many messages they wish to send.
+        int numMessagesToEnter = -1;
+        while (numMessagesToEnter <= 0) {
+            String input = JOptionPane.showInputDialog("How many messages would you like to enter?");
+            if (input == null) {
+                JOptionPane.showMessageDialog(null, " Message entry cancelled. Exiting QuickChat.");
+                return;
+            }
+            try {
+                numMessagesToEnter = Integer.parseInt(input);
+                if (numMessagesToEnter <= 0) {
+                    JOptionPane.showMessageDialog(null, "Please enter a number of messages you wish to send.");
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Invalid input. Please enter a number that appears as an option.");
+            }
+        }
+        //This method will loop allowing the user to enter a number of messages.
+        for (int i = 0; i < numMessagesToEnter; i++) {
+            messageManager.sendMessageFlow(i);
+        }
+        JOptionPane.showMessageDialog(null, "The total number of messages processed is: " + messageManager.getTotalMessagesProcessed());
+
+        int choice = -1;
+        while (choice != 9) {
+            String menuOptions = """
+                    Choose an option:
+                    1) Send New Messages
+                    2) Show Recently Sent Messages (In-memory)
+                    3) Display Sender and Recipient of All Sent Messages
+                    4) Display the Longest Sent Message
+                    5) Search for a Message by ID
+                    6) Search for All Messages Sent to a Recipient
+                    7) Delete a Message by Hash
+                    8) Display Full Report (All Messages & Arrays)
+                    9) Quit""";
+
+            String inputStr = JOptionPane.showInputDialog(null,
+                    menuOptions,
+                    "QuickChat Menu",
+                    JOptionPane.PLAIN_MESSAGE);
+
+            if (inputStr == null) {
+                choice = 9; //
+            } else {
+                try {
+                    choice = Integer.parseInt(inputStr);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Invalid input. Please enter a number between 1 and 9.");
+                    return;
+                }
+            }
+            switch (choice) {
+                case 1: // Option 1: Sends new messages
+                    int additionalMessages = -1;
+                    while (additionalMessages <= 0) {
+                        String InputMessage = JOptionPane.showInputDialog("How many additional messages would you like to send?");
+                        if (InputMessage == null) {
+                            JOptionPane.showMessageDialog(null, "No additional messages will be sent.");
+                            break;
+                        }
+                        try {
+                            additionalMessages = Integer.parseInt(InputMessage);
+                            if (additionalMessages <= 0) {
+                                JOptionPane.showMessageDialog(null, "Please enter a positive number.");
+                            }
+                        } catch (NumberFormatException e) {
+                            JOptionPane.showMessageDialog(null, "Invalid input. Please enter a number.");
+                        }
+                    }
+                    if (additionalMessages > 0) {
+                        for (int i = 0; i < additionalMessages; i++) {
+                            messageManager.sendMessageFlow(messageManager.getTotalMessagesProcessed());
+                        }
+                    }
+                    JOptionPane.showMessageDialog(null, "Total number of messages processed: " + messageManager.getTotalMessagesProcessed());
+                    break;
+
+                case 2: // Option 2: Shows recently sent messages (In-memory)
+                    JOptionPane.showMessageDialog(null, "Recently sent messages: " + messageManager.printSentMessages());
+                    break;
+
+                case 3: // Option 3: Shows the sender and recipient of all the messages that has been sent.
+                    messageManager.displaySenderAndRecipientOfAllSentMessages();
+                    break;
+
+                case 4: // Option 4: Shows the user the longest message that has been sent.
+                    messageManager.displayLongestSentMessage();
+                    break;
+
+                case 5: // Option 5: Allows a user to search for a message by using the message ID.
+                    messageManager.searchMessageByID();
+                    break;
+
+                case 6: // Option 6: Search for All Messages Sent to a Recipient
+                    messageManager.searchMessagesByRecipient();
+                    break;
+
+                case 7: // Option 7: Deletes a message hash.
+                    messageManager.deleteMessageByHash();
+                    break;
+
+                case 8: // Option 8: Shows a full report of all Messages and arrays.
+                    messageManager.displayFullReport();
+                    break;
+
+                case 9: // Option 9: Allows a user to quit.
+                    JOptionPane.showMessageDialog(null, "Exiting QuickChat.");
+                    break;
+
+                default:
+                    JOptionPane.showMessageDialog(null, "Invalid option. Please enter a number between 1 and 9.");
+            }
+        }
+    }
+}
+
